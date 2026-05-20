@@ -36,9 +36,7 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           npm ci && npm run build
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
-            | sudo tee /usr/local/bin/datadog-ci > /dev/null
-          sudo chmod +x /usr/local/bin/datadog-ci
+          sudo npm link
 
       - name: upload test results to Datadog CI Visibility
         if: always()
@@ -121,9 +119,7 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           npm ci && npm run build
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
-            | sudo tee /usr/local/bin/datadog-ci > /dev/null
-          sudo chmod +x /usr/local/bin/datadog-ci
+          sudo npm link
 
       - name: mark this job as a deployment in Datadog CD Visibility
         env:
