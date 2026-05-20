@@ -107,3 +107,21 @@ jobs:
           git add base/kustomization.yaml
           git commit -m "bump svc-hello to ${{ needs.build.outputs.sha7 }}" || exit 0
           git push
+
+      - name: install datadog-ci
+        run: npm install -g @datadog/datadog-ci
+
+      - name: mark this job as a deployment in Datadog CD Visibility
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_SITE: datad0g.com
+          DD_BETA_COMMANDS_ENABLED: "1"
+        run: |
+          datadog-ci deployment mark \
+            --env dev \
+            --service svc-hello \
+            --revision "${{ needs.build.outputs.sha7 }}" \
+            --tags "team:platform" \
+            --tags "cluster:kind-argocd" \
+            --tags "git.commit.sha:${{ github.sha }}" \
+            --no-fail
