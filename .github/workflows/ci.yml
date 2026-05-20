@@ -36,7 +36,11 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           npm ci && npm run build
-          sudo npm link
+          BIN=$(node -e "const b=require('./package.json').bin; console.log(typeof b==='string'?b:Object.values(b)[0])")
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/%s "$@"\n' "$BIN" \
+            | sudo tee /usr/local/bin/datadog-ci
+          sudo chmod +x /usr/local/bin/datadog-ci
+          datadog-ci version
 
       - name: upload test results to Datadog CI Visibility
         if: always()
@@ -119,7 +123,11 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           npm ci && npm run build
-          sudo npm link
+          BIN=$(node -e "const b=require('./package.json').bin; console.log(typeof b==='string'?b:Object.values(b)[0])")
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/%s "$@"\n' "$BIN" \
+            | sudo tee /usr/local/bin/datadog-ci
+          sudo chmod +x /usr/local/bin/datadog-ci
+          datadog-ci version
 
       - name: mark this job as a deployment in Datadog CD Visibility
         env:
