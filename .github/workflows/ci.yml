@@ -153,9 +153,7 @@ jobs:
             --tags "team:platform" \
             --tags "cluster:kind-argocd" \
             --tags "git.commit.sha:${{ github.sha }}" \
-            --no-fail \
-            --commit-sha "${{ github.sha }}" \
-            --repository-url "https://github.com/${{ github.repository }}"
+            --no-fail
 
   bump-manifest:
     needs: build
