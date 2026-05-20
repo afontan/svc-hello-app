@@ -1,0 +1,6 @@
+bin/
+*.test
+*.out
+*.xml
+.env
+.DS_Store

@@ -1,0 +1,109 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write   # needed to push to GHCR
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/svc-hello
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
+      - name: run tests with junit output
+        run: gotestsum --junitfile junit.xml -- ./...
+
+      - name: install datadog-ci
+        if: always()
+        run: npm install -g @datadog/datadog-ci
+
+      - name: upload test results to Datadog CI Visibility
+        if: always()
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_SITE: datad0g.com     # Datadog staging
+        run: |
+          datadog-ci junit upload \
+            --service svc-hello \
+            --env dev \
+            --tags team:platform \
+            junit.xml
+
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      sha7: ${{ steps.vars.outputs.sha7 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: log in to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: set up buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: derive tag
+        id: vars
+        run: echo "sha7=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          build-args: VERSION=${{ steps.vars.outputs.sha7 }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha7 }}
+            ${{ env.IMAGE_NAME }}:latest
+
+  bump-manifest:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout deploy repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/svc-hello-deploy
+          token: ${{ secrets.DEPLOY_REPO_TOKEN }}   # PAT with contents:write on svc-hello-deploy
+          path: deploy
+
+      - name: install kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: bump image tag
+        working-directory: deploy/base
+        run: |
+          kustomize edit set image ghcr.io/${{ github.repository_owner }}/svc-hello=ghcr.io/${{ github.repository_owner }}/svc-hello:${{ needs.build.outputs.sha7 }}
+
+      - name: commit and push
+        working-directory: deploy
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add base/kustomization.yaml
+          git commit -m "bump svc-hello to ${{ needs.build.outputs.sha7 }}" || exit 0
+          git push
