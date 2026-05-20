@@ -36,7 +36,7 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           yarn install && yarn build
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/packages/datadog-ci/dist/cli.js "$@"\n' \
             | sudo tee /usr/local/bin/datadog-ci
           sudo chmod +x /usr/local/bin/datadog-ci
           datadog-ci version
@@ -122,7 +122,7 @@ jobs:
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
           yarn install && yarn build
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/packages/datadog-ci/dist/cli.js "$@"\n' \
             | sudo tee /usr/local/bin/datadog-ci
           sudo chmod +x /usr/local/bin/datadog-ci
           datadog-ci version
