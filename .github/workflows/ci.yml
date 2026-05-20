@@ -31,7 +31,14 @@ jobs:
 
       - name: install datadog-ci
         if: always()
-        run: npm install -g DataDog/datadog-ci#9057251e25d241dbbead4428383ed58d4c253c9a
+        run: |
+          git clone https://github.com/DataDog/datadog-ci.git /tmp/datadog-ci
+          cd /tmp/datadog-ci
+          git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
+          npm ci
+          npm run build
+          npm pack
+          npm install -g datadog-ci-*.tgz
 
       - name: upload test results to Datadog CI Visibility
         if: always()
@@ -109,7 +116,14 @@ jobs:
           git push
 
       - name: install datadog-ci
-        run: npm install -g DataDog/datadog-ci#9057251e25d241dbbead4428383ed58d4c253c9a
+        run: |
+          git clone https://github.com/DataDog/datadog-ci.git /tmp/datadog-ci
+          cd /tmp/datadog-ci
+          git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
+          npm ci
+          npm run build
+          npm pack
+          npm install -g datadog-ci-*.tgz
 
       - name: mark this job as a deployment in Datadog CD Visibility
         env:
