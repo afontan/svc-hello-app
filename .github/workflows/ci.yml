@@ -136,7 +136,8 @@ jobs:
         run: |
           node ${{ github.workspace }}/datadog-ci/packages/datadog-ci/dist/bundle.js deployment correlate-image \
             --image "${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha7 }}" \
-            --commit-sha "${{ github.sha }}"
+            --commit-sha "${{ github.sha }}" \
+            --repository-url "https://github.com/${{ github.repository }}"
 
   bump-manifest:
     needs: build
