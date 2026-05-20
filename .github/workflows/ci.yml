@@ -35,9 +35,8 @@ jobs:
           git clone https://github.com/DataDog/datadog-ci.git /tmp/datadog-ci
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
-          npm ci && npm run build
-          BIN=$(node -e "const b=require('./package.json').bin; console.log(typeof b==='string'?b:Object.values(b)[0])")
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/%s "$@"\n' "$BIN" \
+          yarn install && yarn build
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
             | sudo tee /usr/local/bin/datadog-ci
           sudo chmod +x /usr/local/bin/datadog-ci
           datadog-ci version
@@ -122,9 +121,8 @@ jobs:
           git clone https://github.com/DataDog/datadog-ci.git /tmp/datadog-ci
           cd /tmp/datadog-ci
           git checkout 9057251e25d241dbbead4428383ed58d4c253c9a
-          npm ci && npm run build
-          BIN=$(node -e "const b=require('./package.json').bin; console.log(typeof b==='string'?b:Object.values(b)[0])")
-          printf '#!/bin/sh\nexec node /tmp/datadog-ci/%s "$@"\n' "$BIN" \
+          yarn install && yarn build
+          printf '#!/bin/sh\nexec node /tmp/datadog-ci/dist/cli.js "$@"\n' \
             | sudo tee /usr/local/bin/datadog-ci
           sudo chmod +x /usr/local/bin/datadog-ci
           datadog-ci version
