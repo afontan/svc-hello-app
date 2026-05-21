@@ -127,6 +127,18 @@ jobs:
           yarn build && yarn bundle:npm
           node packages/datadog-ci/dist/bundle.js version
 
+      - name: debug ci_env
+        working-directory: datadog-ci
+        run: |
+          node -e "
+            const {getCISpanTags} = require('./packages/base/dist/helpers/ci');
+            const {CI_ENV_VARS} = require('./packages/base/dist/helpers/tags');
+            const tags = getCISpanTags() || {};
+            let envVars = {};
+            if (tags[CI_ENV_VARS]) { envVars = JSON.parse(tags[CI_ENV_VARS]); delete tags[CI_ENV_VARS]; }
+            console.log(JSON.stringify({...tags, ...envVars}, null, 2));
+          "
+
       - name: correlate image to this CI run for CD Visibility
         env:
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
