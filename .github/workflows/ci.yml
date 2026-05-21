@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DataDog/datadog-ci
-          ref: 9057251e25d241dbbead4428383ed58d4c253c9a
+          ref: 484c345bbd0df4e1a7beab76316ef75c62d1ab4b
           path: datadog-ci
 
       - name: set up node
@@ -109,7 +109,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DataDog/datadog-ci
-          ref: 9057251e25d241dbbead4428383ed58d4c253c9a
+          ref: 484c345bbd0df4e1a7beab76316ef75c62d1ab4b
           path: datadog-ci
 
       - name: set up node
