@@ -139,22 +139,6 @@ jobs:
             --commit-sha "${{ github.sha }}" \
             --repository-url "https://github.com/${{ github.repository }}"
 
-      - name: mark this job as a deployment in Datadog CD Visibility
-        env:
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
-          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-          DD_SITE: datad0g.com
-          DD_BETA_COMMANDS_ENABLED: "1"
-        run: |
-          node ${{ github.workspace }}/datadog-ci/packages/datadog-ci/dist/bundle.js deployment mark \
-            --env dev \
-            --service svc-hello \
-            --revision "${{ steps.vars.outputs.sha7 }}" \
-            --tags "team:platform" \
-            --tags "cluster:kind-argocd" \
-            --tags "git.commit.sha:${{ github.sha }}" \
-            --no-fail
-
   bump-manifest:
     needs: build
     runs-on: ubuntu-latest
