@@ -29,31 +29,9 @@ jobs:
       - name: run tests with junit output
         run: gotestsum --junitfile junit.xml -- ./...
 
-      - name: checkout datadog-ci
-        if: always()
-        uses: actions/checkout@v4
-        with:
-          repository: DataDog/datadog-ci
-          ref: 484c345bbd0df4e1a7beab76316ef75c62d1ab4b
-          path: datadog-ci
-
-      - name: set up node
-        if: always()
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: enable corepack
-        if: always()
-        run: corepack enable
-
       - name: install datadog-ci
         if: always()
-        working-directory: datadog-ci
-        run: |
-          yarn install --immutable
-          yarn build && yarn bundle:npm
-          node packages/datadog-ci/dist/bundle.js version
+        run: npm install -g @datadog/datadog-ci
 
       - name: upload test results to Datadog CI Visibility
         if: always()
@@ -61,7 +39,7 @@ jobs:
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
           DD_SITE: datad0g.com     # Datadog staging
         run: |
-          node ${{ github.workspace }}/datadog-ci/packages/datadog-ci/dist/bundle.js junit upload \
+          datadog-ci junit upload \
             --service svc-hello \
             --env dev \
             --tags team:platform \
@@ -104,40 +82,8 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha7 }}
             ${{ env.IMAGE_NAME }}:latest
 
-      # ---- datadog-ci: correlate image -> CI build job for CD Visibility ----
-      - name: checkout datadog-ci
-        uses: actions/checkout@v4
-        with:
-          repository: DataDog/datadog-ci
-          ref: 484c345bbd0df4e1a7beab76316ef75c62d1ab4b
-          path: datadog-ci
-
-      - name: set up node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: enable corepack
-        run: corepack enable
-
       - name: install datadog-ci
-        working-directory: datadog-ci
-        run: |
-          yarn install --immutable
-          yarn build && yarn bundle:npm
-          node packages/datadog-ci/dist/bundle.js version
-
-      - name: debug ci_env
-        working-directory: datadog-ci
-        run: |
-          node -e "
-            const {getCISpanTags} = require('./packages/base/dist/helpers/ci');
-            const {CI_ENV_VARS} = require('./packages/base/dist/helpers/tags');
-            const tags = getCISpanTags() || {};
-            let envVars = {};
-            if (tags[CI_ENV_VARS]) { envVars = JSON.parse(tags[CI_ENV_VARS]); delete tags[CI_ENV_VARS]; }
-            console.log(JSON.stringify({...tags, ...envVars}, null, 2));
-          "
+        run: npm install -g @datadog/datadog-ci
 
       - name: correlate image to this CI run for CD Visibility
         env:
@@ -146,7 +92,7 @@ jobs:
           DD_SITE: datad0g.com
           DD_BETA_COMMANDS_ENABLED: "1"
         run: |
-          node ${{ github.workspace }}/datadog-ci/packages/datadog-ci/dist/bundle.js deployment correlate-image \
+          datadog-ci deployment correlate-image \
             --image "${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha7 }}" \
             --commit-sha "${{ github.sha }}" \
             --repository-url "https://github.com/${{ github.repository }}"
