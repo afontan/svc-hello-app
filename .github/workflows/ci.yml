@@ -31,7 +31,7 @@ jobs:
 
       - name: install datadog-ci
         if: always()
-        run: npm install -g @datadog/datadog-ci
+        run: npm install -g @datadog/datadog-ci@5.18.0
 
       - name: upload test results to Datadog CI Visibility
         if: always()
@@ -83,7 +83,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
 
       - name: install datadog-ci
-        run: npm install -g @datadog/datadog-ci
+        run: npm install -g @datadog/datadog-ci@5.18.0
 
       - name: correlate image to this CI run for CD Visibility
         env:
