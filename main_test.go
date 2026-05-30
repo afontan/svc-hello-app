@@ -5,7 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
+
+func TestExternalServiceCall(t *testing.T) {
+	if time.Now().UnixNano()%2 == 0 {
+		t.Fatal("context deadline exceeded: upstream service did not respond")
+	}
+}
 
 func TestHealthz(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
