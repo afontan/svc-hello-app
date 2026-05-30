@@ -118,6 +118,11 @@ jobs:
         run: |
           kustomize edit set image ghcr.io/${{ github.repository_owner }}/svc-hello=ghcr.io/${{ github.repository_owner }}/svc-hello:${{ needs.build.outputs.sha7 }}
 
+      - name: bump version label
+        working-directory: deploy/base
+        run: |
+          sed -i 's|tags\.datadoghq\.com/version: "[^"]*"|tags.datadoghq.com/version: "${{ needs.build.outputs.sha7 }}"|' kustomization.yaml
+
       - name: commit and push
         working-directory: deploy
         run: |
