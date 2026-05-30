@@ -31,3 +31,4 @@ make docker push OWNER=afontan
 ### Required GitHub secrets
 - `DD_API_KEY` — Datadog API key (for `datadog-ci`)
 - `DEPLOY_REPO_TOKEN` — PAT with `contents:write` scope on the `svc-hello-deploy` repo
+
